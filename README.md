@@ -1,2 +1,2 @@
 # oop-workshop
-debugging ninjas
+debugging ninjas🥷🥷🥷
