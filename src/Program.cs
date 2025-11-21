@@ -1,3 +1,4 @@
-﻿
-Console.WriteLine("Testing");
+﻿using Presentation;
 
+var ui = new ConsoleUI();
+ui.Run();
