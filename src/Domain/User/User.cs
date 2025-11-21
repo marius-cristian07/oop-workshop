@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Domain.Media;
+using Persistence;
+
 namespace Domain.User
 {
     public enum UserType
@@ -22,31 +28,234 @@ namespace Domain.User
             Type = type;
         }
 
-        // Borrower ability
+        // Borrower + Employee + Admin: view media
         public void ViewMedia()
         {
-            System.Console.WriteLine($"[User: {Name}] Viewing available media...");
-            // placeholder - integrate real media store here
+            var media = FileAccess.LoadAllMedia();
+
+            if (!media.Any())
+            {
+                Console.WriteLine("No media in the collection yet.");
+                return;
+            }
+
+            Console.WriteLine("Available media:");
+            foreach (var group in media.GroupBy(m => m.MediaType))
+            {
+                Console.WriteLine($"== {group.Key} ==");
+                foreach (var item in group)
+                    Console.WriteLine($" - {item.Title}");
+            }
         }
 
-        // Employee abilities
-        public void AddMedia(string title)
+        // Employee/Admin: add media
+        public void AddMedia(string _ignoredTitleFromUi)
         {
-            System.Console.WriteLine($"[Employee: {Name}] Adding media: {title}");
-            // placeholder - integrate real media store here
+            if (Type == UserType.Borrower)
+            {
+                Console.WriteLine("Borrowers are not allowed to add media.");
+                return;
+            }
+
+            Console.WriteLine("Select media type to add:");
+            Console.WriteLine("1) EBook");
+            Console.WriteLine("2) Movie");
+            Console.WriteLine("3) Song");
+            Console.WriteLine("4) VideoGame");
+            Console.WriteLine("5) App");
+            Console.WriteLine("6) Podcast");
+            Console.WriteLine("7) Image");
+            Console.Write("Choice: ");
+            var choice = Console.ReadLine();
+
+            Media? media = choice switch
+            {
+                "1" => CreateEBookFromInput(),
+                "2" => CreateMovieFromInput(),
+                "3" => CreateSongFromInput(),
+                "4" => CreateVideoGameFromInput(),
+                "5" => CreateAppFromInput(),
+                "6" => CreatePodcastFromInput(),
+                "7" => CreateImageFromInput(),
+                _ => null
+            };
+
+            if (media == null)
+            {
+                Console.WriteLine("Cancelled or invalid input.");
+                return;
+            }
+
+            FileAccess.AddMedia(media);
+            Console.WriteLine($"[{Type}: {Name}] Added media: {media.Title}");
         }
 
+        // Employee/Admin: remove media
         public void RemoveMedia(string title)
         {
-            System.Console.WriteLine($"[Employee: {Name}] Removing media: {title}");
-            // placeholder - integrate real media store here
+            if (Type == UserType.Borrower)
+            {
+                Console.WriteLine("Borrowers are not allowed to remove media.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                Console.WriteLine("Title cannot be empty.");
+                return;
+            }
+
+            bool removed = FileAccess.RemoveMediaByTitle(title);
+            Console.WriteLine(removed
+                ? $"[{Type}: {Name}] Removed media: {title}"
+                : $"Media with title \"{title}\" not found.");
         }
 
-        // Admin abilities
+        // Admin-only logic stays the same
         public void ManageUsers()
         {
-            System.Console.WriteLine($"[Admin: {Name}] Opening user management...");
-            // placeholder - admin-specific actions can be expanded
+            Console.WriteLine($"[Admin: {Name}] Opening user management...");
+        }
+
+        // --- helper methods to build media objects from console input ---
+
+        private static EBook? CreateEBookFromInput()
+        {
+            Console.Write("Title: ");
+            var title = Console.ReadLine();
+            Console.Write("Author: ");
+            var author = Console.ReadLine();
+            Console.Write("Language: ");
+            var language = Console.ReadLine();
+            Console.Write("Number of pages: ");
+            if (!int.TryParse(Console.ReadLine(), out int pages)) return null;
+            Console.Write("Year of publication: ");
+            if (!int.TryParse(Console.ReadLine(), out int year)) return null;
+            Console.Write("ISBN: ");
+            var isbn = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(author))
+                return null;
+
+            return new EBook(title, author!, language ?? "", pages, year, isbn ?? "");
+        }
+
+        private static Movie? CreateMovieFromInput()
+        {
+            Console.Write("Title: ");
+            var title = Console.ReadLine();
+            Console.Write("Director: ");
+            var director = Console.ReadLine();
+            Console.Write("Genres: ");
+            var genres = Console.ReadLine();
+            Console.Write("Release year: ");
+            if (!int.TryParse(Console.ReadLine(), out int year)) return null;
+            Console.Write("Language: ");
+            var language = Console.ReadLine();
+            Console.Write("Duration (minutes): ");
+            if (!int.TryParse(Console.ReadLine(), out int duration)) return null;
+
+            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(director))
+                return null;
+
+            return new Movie(title!, director!, genres ?? "", year, language ?? "", duration);
+        }
+
+        private static Song? CreateSongFromInput()
+        {
+            Console.Write("Title: ");
+            var title = Console.ReadLine();
+            Console.Write("Composer: ");
+            var composer = Console.ReadLine();
+            Console.Write("Singer: ");
+            var singer = Console.ReadLine();
+            Console.Write("Genre: ");
+            var genre = Console.ReadLine();
+            Console.Write("File type (e.g. mp3): ");
+            var fileType = Console.ReadLine();
+            Console.Write("Duration (seconds): ");
+            if (!int.TryParse(Console.ReadLine(), out int duration)) return null;
+            Console.Write("Language: ");
+            var language = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(title)) return null;
+
+            return new Song(title!, composer ?? "", singer ?? "",
+                            genre ?? "", fileType ?? "", duration, language ?? "");
+        }
+
+        private static VideoGame? CreateVideoGameFromInput()
+        {
+            Console.Write("Title: ");
+            var title = Console.ReadLine();
+            Console.Write("Genre: ");
+            var genre = Console.ReadLine();
+            Console.Write("Publisher: ");
+            var publisher = Console.ReadLine();
+            Console.Write("Release year: ");
+            if (!int.TryParse(Console.ReadLine(), out int year)) return null;
+            Console.Write("Platforms: ");
+            var platforms = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(title)) return null;
+
+            return new VideoGame(title!, genre ?? "", publisher ?? "", year, platforms ?? "");
+        }
+
+        private static App? CreateAppFromInput()
+        {
+            Console.Write("Title: ");
+            var title = Console.ReadLine();
+            Console.Write("Version: ");
+            var version = Console.ReadLine();
+            Console.Write("Publisher: ");
+            var publisher = Console.ReadLine();
+            Console.Write("Platforms: ");
+            var platforms = Console.ReadLine();
+            Console.Write("File size: ");
+            var fileSize = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(title)) return null;
+
+            return new App(title!, version ?? "", publisher ?? "", platforms ?? "", fileSize ?? "");
+        }
+
+        private static Podcast? CreatePodcastFromInput()
+        {
+            Console.Write("Title: ");
+            var title = Console.ReadLine();
+            Console.Write("Release year: ");
+            if (!int.TryParse(Console.ReadLine(), out int year)) return null;
+            Console.Write("Hosts: ");
+            var hosts = Console.ReadLine();
+            Console.Write("Guests: ");
+            var guests = Console.ReadLine();
+            Console.Write("Episode number: ");
+            if (!int.TryParse(Console.ReadLine(), out int ep)) return null;
+            Console.Write("Language: ");
+            var language = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(title)) return null;
+
+            return new Podcast(title!, year, hosts ?? "", guests ?? "", ep, language ?? "");
+        }
+
+        private static ImageFile? CreateImageFromInput()
+        {
+            Console.Write("Title: ");
+            var title = Console.ReadLine();
+            Console.Write("Resolution: ");
+            var resolution = Console.ReadLine();
+            Console.Write("File format: ");
+            var format = Console.ReadLine();
+            Console.Write("File size: ");
+            var fileSize = Console.ReadLine();
+            Console.Write("Date taken: ");
+            var dateTaken = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(title)) return null;
+
+            return new ImageFile(title!, resolution ?? "", format ?? "", fileSize ?? "", dateTaken ?? "");
         }
     }
 
@@ -63,7 +272,8 @@ namespace Domain.User
 
         public static User? FindByNameAndSSN(string name, string ssn)
         {
-            return _users.FirstOrDefault(u => u.Name.Equals(name, System.StringComparison.OrdinalIgnoreCase) && u.SSN == ssn);
+            return _users.FirstOrDefault(u =>
+                u.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && u.SSN == ssn);
         }
 
         public static bool Remove(User user)

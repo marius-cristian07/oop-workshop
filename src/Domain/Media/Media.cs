@@ -1,187 +1,284 @@
+using System;
 
-public class Media
+namespace Domain.Media
 {
-    public String title;
-    public String language;
-
-    public void download()
+    public abstract class Media
     {
-        Console.WriteLine("Your file has been downloaded succesfully");
+        public string Title { get; }
+        public string MediaType { get; }
+
+        protected Media(string mediaType, string title)
+        {
+            MediaType = mediaType;
+            Title = title;
+        }
+
+        public virtual void Download()
+        {
+            Console.WriteLine("Your file has been downloaded successfully.");
+        }
+
+        public override string ToString()
+        {
+            return $"{MediaType}: {Title}";
+        }
+    }
+
+    public class EBook : Media
+    {
+        public string Author { get; }
+        public string Language { get; }
+        public int NumPages { get; }
+        public int YearOfPublication { get; }
+        public string ISBN { get; }
+
+        public EBook(string title, string author, string language,
+                     int numPages, int yearOfPublication, string isbn)
+            : base("EBook", title)
+        {
+            Author = author;
+            Language = language;
+            NumPages = numPages;
+            YearOfPublication = yearOfPublication;
+            ISBN = isbn;
+        }
+
+        public void View()
+        {
+            Console.WriteLine($"You are viewing the EBook \"{Title}\".");
+        }
+
+        public void Read()
+        {
+            Console.WriteLine($"You are reading the EBook \"{Title}\".");
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() +
+                   $" | Author: {Author} | Language: {Language} | Pages: {NumPages} | Year: {YearOfPublication} | ISBN: {ISBN}";
+        }
+    }
+
+    public class Movie : Media
+    {
+        public string Director { get; }
+        public string Genres { get; }
+        public int ReleaseYear { get; }
+        public string Language { get; }
+        public int Duration { get; }
+
+        public Movie(string title, string director, string genres,
+                     int releaseYear, string language, int duration)
+            : base("Movie", title)
+        {
+            Director = director;
+            Genres = genres;
+            ReleaseYear = releaseYear;
+            Language = language;
+            Duration = duration;
+        }
+
+        public void Watch()
+        {
+            Console.WriteLine($"You are watching the movie \"{Title}\".");
+        }
+
+        public override void Download()
+        {
+            Console.WriteLine($"You downloaded the movie \"{Title}\".");
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() +
+                   $" | Director: {Director} | Genres: {Genres} | Year: {ReleaseYear} | Language: {Language} | Duration: {Duration} min";
+        }
+    }
+
+    public class Song : Media
+    {
+        public string Composer { get; }
+        public string Singer { get; }
+        public string Genre { get; }
+        public string FileType { get; }
+        public int Duration { get; }
+        public string Language { get; }
+
+        public Song(string title, string composer, string singer,
+                    string genre, string fileType, int duration, string language)
+            : base("Song", title)
+        {
+            Composer = composer;
+            Singer = singer;
+            Genre = genre;
+            FileType = fileType;
+            Duration = duration;
+            Language = language;
+        }
+
+        public void Play()
+        {
+            Console.WriteLine($"The song \"{Title}\" is playing.");
+        }
+
+        public override void Download()
+        {
+            Console.WriteLine($"You downloaded the song \"{Title}\".");
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() +
+                   $" | Composer: {Composer} | Singer: {Singer} | Genre: {Genre} | Type: {FileType} | Duration: {Duration} s | Language: {Language}";
+        }
+    }
+
+    public class VideoGame : Media
+    {
+        public string Genre { get; }
+        public string Publisher { get; }
+        public int ReleaseYear { get; }
+        public string Platforms { get; }
+
+        public VideoGame(string title, string genre, string publisher,
+                         int releaseYear, string platforms)
+            : base("VideoGame", title)
+        {
+            Genre = genre;
+            Publisher = publisher;
+            ReleaseYear = releaseYear;
+            Platforms = platforms;
+        }
+
+        public void Play()
+        {
+            Console.WriteLine($"The videogame \"{Title}\" is playing.");
+        }
+
+        public void Complete()
+        {
+            Console.WriteLine($"You completed the videogame \"{Title}\".");
+        }
+
+        public override void Download()
+        {
+            Console.WriteLine($"You downloaded the videogame \"{Title}\".");
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() +
+                   $" | Genre: {Genre} | Publisher: {Publisher} | Year: {ReleaseYear} | Platforms: {Platforms}";
+        }
+    }
+
+    public class App : Media
+    {
+        public string Version { get; }
+        public string Publisher { get; }
+        public string Platforms { get; }
+        public string FileSize { get; }
+
+        public App(string title, string version, string publisher,
+                   string platforms, string fileSize)
+            : base("App", title)
+        {
+            Version = version;
+            Publisher = publisher;
+            Platforms = platforms;
+            FileSize = fileSize;
+        }
+
+        public void Execute()
+        {
+            Console.WriteLine($"You are executing the app \"{Title}\".");
+        }
+
+        public override void Download()
+        {
+            Console.WriteLine($"You downloaded the app \"{Title}\".");
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() +
+                   $" | Version: {Version} | Publisher: {Publisher} | Platforms: {Platforms} | Size: {FileSize}";
+        }
+    }
+
+    public class Podcast : Media
+    {
+        public int ReleaseYear { get; }
+        public string Hosts { get; }
+        public string Guests { get; }
+        public int EpisodeNumber { get; }
+        public string Language { get; }
+
+        public Podcast(string title, int releaseYear, string hosts,
+                       string guests, int episodeNumber, string language)
+            : base("Podcast", title)
+        {
+            ReleaseYear = releaseYear;
+            Hosts = hosts;
+            Guests = guests;
+            EpisodeNumber = episodeNumber;
+            Language = language;
+        }
+
+        public void Listen()
+        {
+            Console.WriteLine($"You are listening to the podcast \"{Title}\".");
+        }
+
+        public void Complete()
+        {
+            Console.WriteLine($"You completed the podcast \"{Title}\".");
+        }
+
+        public override void Download()
+        {
+            Console.WriteLine($"You downloaded the podcast \"{Title}\".");
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() +
+                   $" | Year: {ReleaseYear} | Hosts: {Hosts} | Guests: {Guests} | Episode: {EpisodeNumber} | Language: {Language}";
+        }
+    }
+
+    public class ImageFile : Media
+    {
+        public string Resolution { get; }
+        public string FileFormat { get; }
+        public string FileSize { get; }
+        public string DateTaken { get; }
+
+        public ImageFile(string title, string resolution, string fileFormat,
+                         string fileSize, string dateTaken)
+            : base("Image", title)
+        {
+            Resolution = resolution;
+            FileFormat = fileFormat;
+            FileSize = fileSize;
+            DateTaken = dateTaken;
+        }
+
+        public void Display()
+        {
+            Console.WriteLine($"The image \"{Title}\" is displayed.");
+        }
+
+        public override void Download()
+        {
+            Console.WriteLine($"The image \"{Title}\" is downloaded.");
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() +
+                   $" | Resolution: {Resolution} | Format: {FileFormat} | Size: {FileSize} | Date taken: {DateTaken}";
+        }
     }
 }
-
-public class EBook : Media
-{
-    public String author;
-    public int numPages;
-    public int yearOfPublication;
-    public String ISBN;
-
-    public void view() {
-        Console.WriteLine("You are viewing the EBook");
-    }
-
-    public void read() {
-        Console.WriteLine("You are reading the EBook");
-    }
-
-    public EBook(String author, int numPages, int yearOfPublication, String ISBN) {
-        this.author = author;
-        this.numPages = numPages;
-        this.yearOfPublication = yearOfPublication;
-        this.ISBN = ISBN;
-    }
-}
-
-public class Movie : Media
-{
-    public String director;
-    public String genres;
-    public int releaseYear;
-    public int duration;
-
-    public void watch() {
-        Console.WriteLine("You are watching the movie");
-    }
-
-    public void download() {
-        Console.WriteLine("You downloaded the movie");
-    }
-
-    public Movie(String director, String genres, int releaseYear, int duration) {
-        this.director = director;
-        this.genres = genres;
-        this.releaseYear = releaseYear;
-        this.duration = duration;
-
-    }
-
-}
-
-public class Song : Media
-{
-    public String composer;
-    public String singer;
-    public String genre;
-    public String fileType;
-    public int duration;
-
-    public void play() {
-        Console.WriteLine("The song is playing");
-    }
-
-    public void download() {
-        Console.WriteLine("You downloaded the song");
-    }
-
-    public Song(string composer, string singer, string genre, string fileType, int duration) {
-        this.composer = composer;
-        this.singer = singer;
-        this.genre = genre;
-        this.fileType = fileType;
-        this.duration = duration;
-    }
-}
-
-public class VideoGame : Media
-{
-    public String genre;
-    public String publisher;
-    public String releaseYear;
-    public String platforms;
-
-    public void download() {
-        Console.WriteLine("You downloaded the videogame");
-    }
-
-    public void play() {
-        Console.WriteLine("The videogame is playing");
-    }
-
-    public void complete() {
-        Console.WriteLine("You completed the videogame");
-    }
-
-    public VideoGame(string genre, string publisher, string releaseYear, string platforms) {
-        this.genre = genre;
-        this.publisher = publisher;
-        this.releaseYear = releaseYear;
-        this.platforms = platforms;
-    }
-}
-
-public class App : Media
-{
-    public String version;
-    public String publisher;
-    public String platforms;
-    public String fileSize;
-
-    public void download() {
-        Console.WriteLine("You downloaded the app");
-    }
-
-    public void execute() {
-        Console.WriteLine("You are executing the app");
-    }
-
-    public App(string version, string publisher, string platforms, string fileSize) {
-        this.version = version;
-        this.publisher = publisher;
-        this.platforms = platforms;
-        this.fileSize = fileSize;
-    }
-}
-
-public class Podcast : Media
-{
-    public int releaseYear;
-    public String hosts;
-    public String guests;
-    public int episodeNumber;
-    public String language;
-
-    public void listen() {
-        Console.WriteLine("You are listening to the podcast");
-    }
-
-    public void download() {
-        Console.WriteLine("You downloaded the podcast");
-    }
-
-    public void complete() {
-        Console.WriteLine("You completed the podcast");
-    }
-
-    public Podcast(int releaseYear, String hosts, String guests, int episodeNumber, String language) {
-        this.releaseYear = releaseYear;
-        this.hosts = hosts;
-        this.guests = guests;
-        this.episodeNumber = episodeNumber;
-        this.language = language;
-    }
-}
-
-public class ImageFile : Media
-{
-    public String resolution;
-    public String fileFormat;
-    public String fileSize;
-    public String dateTaken;
-
-    public void display() {
-        Console.WriteLine("The ImageFile is displayed");
-    }
-
-    public void download() {
-        Console.WriteLine("The ImageFile is downloaded");
-    }
-
-    public ImageFile(string resolution, string fileFormat, string fileSize, string dateTaken) {
-        this.resolution = resolution;
-        this.fileFormat = fileFormat;
-        this.fileSize = fileSize;
-        this.dateTaken = dateTaken;
-    }
-}
-
